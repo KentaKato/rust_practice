@@ -1,4 +1,4 @@
-# 所有権システムについて
+# 所有権システム
 
 ## 代入では所有権が移動する
 
@@ -163,3 +163,39 @@ fn main(){
 }
 
 ```
+
+
+# シャドーイング
+
+- 同一スコープ内で変数を再宣言できる機能。
+- 再宣言すると、以前に宣言した変数を隠し、あとで宣言した変数が参照される。
+- 型が異なる同一名の変数を宣言することもできる。
+
+
+危険な気がするけど、メリットのほうが大きいのか？
+
+OK
+
+```rust
+fn main(){
+    let s = "This is sample sentence.";
+    let s = s.replace("This", "That");
+    let s = s.replace("sentence", "code");
+    println!("{}", s);
+}
+```
+
+OK
+
+```rust
+fn main(){
+    let s = "This is sample sentence.";
+    let s = s.replace("This", "That");
+    let s = 1;
+    let s = 1.0;
+    let s = s.replace("sentence", "code");
+    println!("{}", s);
+}
+```
+
+
