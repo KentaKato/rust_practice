@@ -197,4 +197,99 @@ fn main(){
 }
 ```
 
+# テストフレームワーク
+
+テストプロジェクトの作成
+
+```bash
+cargo new mytest --lib
+cd mytest && tree .
+.
+├── Cargo.toml
+└── src
+    └── lib.rs
+```
+
+テストのテンプレートが自動生成される。
+
+mytest/src/lib.rs
+```rust
+#[cfg(test)] // cargo testを実行したときに、ビルド対象となることを明示
+             // #[...]はRustコンパイラーに与えるアトリビュートというメタ情報（？？？）
+
+mod tests {  // モジュール'tests'を宣言
+    #[test]  // テストコマンドの実行時、この宣言のある関数が実行される
+    fn it_works() {
+        let result = 2 + 2;
+        assert_eq!(result, 4);
+    }
+}
+```
+
+ビルドしてテストしてみる
+```bash
+$ cargo test
+
+   Compiling mytest v0.1.0 (/home/kato/rust_practice/src/ch3/mytest)
+    Finished test [unoptimized + debuginfo] target(s) in 0.24s
+     Running unittests src/lib.rs (target/debug/deps/mytest-79593358f0ff4f08)
+
+running 1 test
+test tests::it_works ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests mytest
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+```
+
+マクロ一覧
+
+assert!(var)
+assert_eq!(var1, var2)
+assert_ne!(var1, var2)
+
+
+PartialEq
+
+構造体同士の比較に必要。
+冒頭で
+#[derive(PartialEq)]
+と宣言することで、assert_eq!(struct1, struct2)のように構造体同士の比較が可能になる。
+
+```rust
+#[derive(Debug, PartialEq)]
+// Debug: フォーマッタを利用して値を出力できるようにする。 PartialEq: 構造体の各要素を比較できるようにする
+
+struct GItem {
+    name: String,
+    price: i64,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*; // 外側の要素を利用
+    #[test]
+    fn item_test(){
+        let apple1 = GItem{
+            name: String::from("apple"),
+            price: 2400,
+        };
+        let mut apple2 = GItem{
+            name: "apple".to_string(),
+            price: 0,
+        };
+        apple2.price = 2400;
+
+        assert_eq!(apple1.name, apple2.name);
+        assert_eq!(apple1.price, apple2.price);
+
+        assert_eq!(apple1, apple2);
+    }
+}
+```
+
 
