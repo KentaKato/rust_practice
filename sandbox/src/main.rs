@@ -1,6 +1,6 @@
 use rand::Rng; // randライブラリからRngトレイトをインポート
 use std::f64::consts::PI; // 円周率PIをインポート
-use plotters::prelude::*; // plottersライブラリをインポート
+use plotters::{prelude::*, coord::types::RangedCoordf64}; // plottersライブラリをインポート
 
 fn sin_func(x: f64) -> f64 {
     let amp = 1.0;
@@ -8,6 +8,24 @@ fn sin_func(x: f64) -> f64 {
     let phase = 0.0;
     return amp * f64::sin(omega * x + phase);
 }
+
+fn draw_latent_func(
+    chart: &mut ChartContext<BitMapBackend, Cartesian2d<RangedCoordf64, RangedCoordf64>>,
+    latent_f: fn(f64) -> f64,
+    bounds: (f64, f64)) -> Result<(), Box<dyn std::error::Error>> {
+
+    let step = 0.1;
+    let range = (0..=((bounds.1 - bounds.0) / step).round() as usize)
+        .map(|i| bounds.0 + i as f64 * step)
+        .filter(|&x| x <= bounds.1);
+    chart.draw_series(LineSeries::new(
+        range.map(|x| (x, latent_f(x))),
+        &BLUE
+    ))?;
+
+    return Ok(());
+}
+
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut rng = rand::thread_rng(); // 乱数ジェネレータを初期化
@@ -54,17 +72,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     // sin関数を描画
-    let step = 0.1;
-    let range_len = (2.0 * PI / step).round() as i32;
-    let range = (0..range_len).map(|i| i as f64 * step - PI);
-    chart.draw_series(LineSeries::new(
-        range.map(|x| (x, sin_func(x))),
-        &BLUE
-    ))?;
+    draw_latent_func(&mut chart, sin_func, (-PI, PI))?;
 
     // 描画が終わったら、画像ファイルを保存
     root.present()?;
 
-    Ok(())
+    return Ok(());
 
 }
